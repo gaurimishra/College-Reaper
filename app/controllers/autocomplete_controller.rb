@@ -6,5 +6,11 @@ class AutocompleteController < ApplicationController
   
   #
   def complete 
+    courses = Course.all
+    classes = Array.new
+    courses.each do |course|
+      courseString = course.instructional_unit+ " " + course.course_number.to_s + ": " + course.name
+      classes.push(courseString)
+    end
   end
 end

@@ -37,8 +37,14 @@ class User < ActiveRecord::Base
 
   validates :uuid, uniqueness: true, presence: true
 
+  has_many :preferences
   belongs_to :person
   has_many :completions
   has_many :courses, through: :completions
+<<<<<<< HEAD
   
 end
+=======
+  has_many :schedules
+end
+>>>>>>> upstream/master
