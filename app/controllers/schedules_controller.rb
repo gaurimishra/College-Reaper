@@ -87,7 +87,6 @@ class SchedulesController < ApplicationController
 
   # The +tips+ method simply displays text to a user to remind them that having less restrictions will allow the
   # application to find more optimal schedules for them.
-
   protected
   def tips
     {

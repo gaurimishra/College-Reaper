@@ -384,7 +384,7 @@ module GenScheduleHelper
       return class_section_set.size == preferences.num_courses.to_i
     end
   
-  
+    # Checks whether a given time is earlier than other time
     def time_earlier_than_other_time(time, other_time)
       hour_diff = time.hour - other_time.hour
       min_diff = time.min - other_time.min
@@ -401,6 +401,7 @@ module GenScheduleHelper
       end
     end
     
+    # Checks whether a given time is later than other time
     def time_later_than_other_time(time, other_time)
       hour_diff = time.hour - other_time.hour
       min_diff = time.min - other_time.min
@@ -417,6 +418,7 @@ module GenScheduleHelper
       end
     end
       
+    # Checks whether a given time range contains another time_range
     def time_range_contains_other_time_range(start_time, end_time, other_start_time, other_end_time)
       time_earlier_than_other_time start_time, other_start_time and
         time_later_than_other_time end_time, other_end_time
