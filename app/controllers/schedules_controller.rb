@@ -85,7 +85,12 @@ class SchedulesController < ApplicationController
     redirect_to next_wizard_path
   end
 
+<<<<<<< HEAD
 
+=======
+  # The +tips+ method simply displays text to a user to remind them that having less restrictions will allow the
+  # application to find more optimal schedules for them.
+>>>>>>> a901762b301a0c90844a59881fe3f6c163cc93dc
   protected
   # The +tips+ method simply displays text to a user to remind them that having less restrictions will allow the
   # application to find more optimal schedules for them.
