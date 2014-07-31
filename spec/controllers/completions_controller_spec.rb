@@ -10,11 +10,12 @@ describe CompletionsController  do
   end
   describe '#new' do
   it 'renders the home template' do
-       
+       @completion = Completion.new
     end
   end
   describe '#show' do
   it 'renders the show template' do
+
     end
   end
   describe '#edit' do
