@@ -1,86 +1,107 @@
 <div class="row">
   <div class="medium-12 columns">
     <h2>Your Schedule</h2>
-    <div class="row">
       <% # noinspection RubyStringKeysInHashInspection
-         day_remap = {
-          'Sunday' => 'U',
-          'Monday' => 'M',
-          'Tuesday' => 'T',
-          'Wednesday' => 'W',
-          'Thursday' => 'R',
-          'Friday' => 'F',
-          'Saturday' => 'S'
+         day_map = {
+          'Sunday' => { code: 'U', color: '#000000'},
+          'Monday' => { code: 'M', color: '#FF0000'},
+          'Tuesday' => { code: 'T', color: '#00FF00'},
+          'Wednesday' => { code: 'W', color: '#0000FF'},
+          'Thursday' => { code: 'R', color: '#FF00FF'},
+          'Friday' => { code: 'F', color: '#00FFFF'},
+          'Saturday' => { code: 'S', color: '#FFFF00'}
       }
       if @schedule.nil?
       %>
       <h3 class="medium-8 columns medium-centered">Looks empty...<%= link_to 'Click here to generate a new one!', wizard_path(:course_load), data: { no_turbolink: true }  %></h3>
       <% else %>
-        <% Date::DAYNAMES.each do |day| %>
-          <% if day != 'Saturday' and day != 'Sunday' %>
-            <div class="medium-2 offset-2 columns space" align="center">
-              <%= day %>
-              <% @schedule.sections.order(start_time: :asc).each do |section| %>
-                <% unless section.rpt_pattern.index(day_remap[day]).nil? %>
-                  <span class="label block">
-                    <%= section.course.instructional_unit + ' ' + section.course.course_number %>
-                    <br/>
-                    <%= section.location.name + ' ' + section.room %>
-                    <br/>
-                    <%= section.start_time.strftime('%H:%M') + ' - ' + section.end_time.strftime('%H:%M') %>
-                    <br />
-                    <%= section.person.name %>
-                  </span>
+        <table width="100%">
+          <thead>
+            <tr>
+              <% Date::DAYNAMES.each do |day| %>
+                <th><%= day %></th>
+              <%end%>
+            </tr>
+          </thead>
+          <tbody>
+            <% @schedule.sections.order(start_time: :asc).each do |section| %>
+              <tr>
+                <% Date::DAYNAMES.each do |day| %>
+                  <% if section.rpt_pattern.index(day_map[day][:code]).nil? %>
+                      <td></td>
+                  <% else %>
+                      <td>
+                        <%= section.course.instructional_unit + ' ' + section.course.course_number %><br>
+                        <%= section.location.name + ' ' + section.room %><br>
+                        <%= section.start_time.strftime('%H:%M') + ' - ' + section.end_time.strftime('%H:%M') %><br>
+                        <%= section.person.name %>
+                      </td>
+                  <% end %>
                 <% end %>
-              <% end %>
-            </div>
-          <% end %>
-        <% end %>
-        <div class="medium-2 offset-2 columns space" align="center">Saturday/Sunday</div>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
       <% end %>
     </div>
-  </div>
 </div>
 <% unless @schedule.nil? %>
   <div class="row">
     <div class="medium-12 columns">
-      <div id="map"></div>
-      <script type="text/javascript">
-        var map = L.map('map').setView([39.9833, -82.9833], 13);
-        L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
-          attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
-          maxZoom: 18
-        }).addTo(map);
-
+      <div class="tabs-content">
         <% Date::DAYNAMES.each do |day| %>
-        <% @schedule.sections.order(start_time: :asc).each do |section| %>
-        <% unless section.rpt_pattern.index(day_remap[day]).nil? %>
-          var dir<%= day %> = MQ.routing.directions();
-          dir<%= day %>.route({
-            locations: [
-            <%= location_coords = Array.new
-             @schedule.sections.order(start_time: :asc).each do |next_section|
-                unless next_section.rpt_pattern.index(day_remap[day]).nil?
-              location_coords.push "{ latLng: { lng:#{section.location.lonlat.y}, lat:#{section.location.lonlat.x} } }"
-              end
-              end
-              location_coords.join(",")
-              %>
-            ],
-            options: {routeType:'pedestrian'}
-          });
-
-          map.addLayer(MQ.routing.routeLayer({
-            directions: dir<%= day %>,
-            fitBounds: true,
-            ribbonOptions: {
-              ribbonDisplay: { color: '#00FF00', opacity: 0.5 }
-            }
-          }));
+          <div class="leaflet-map-large content<%= day == 'Monday' ? ' active' : '' %>" id="<%= day.downcase %>-map-panel">
+          </div>
         <% end %>
-        <% end %>
-        <% end %>
-      </script>
+      </div>
     </div>
+  </div>
+  <div class="row">
+    <div class="medium-12 columns">
+      <ul class="tabs" data-tab id="map-tabs">
+        <% Date::DAYNAMES.each do |day| %>
+          <li class="tab-title<%= day == 'Monday' ? ' active' : '' %>"><a href="#<%= day.downcase %>-map-panel"><%= day %></a></li>
+        <% end %>
+      </ul>
+    </div>
+    <script type="text/javascript">
+      <% Date::DAYNAMES.each do |day| %>
+      <%= day.downcase %>_map = L.map('<%= day.downcase %>-map-panel').setView([39.999505, -83.012658], 15);
+      L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+        attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
+        maxZoom: 18
+      }).addTo(<%= day.downcase %>_map);
+
+      var <%= day.downcase %>_dir = MQ.routing.directions();
+
+      var <%= day.downcase %>_locations = [
+          <%= location_coords = Array.new
+           @schedule.sections.order(start_time: :asc).each do |section|
+              unless section.rpt_pattern.index(day_map[day][:code]).nil?
+                location_coords.push "{ latLng: { lng:#{section.location.lonlat.y}, lat:#{section.location.lonlat.x} } }"
+               end
+            end
+            location_coords.join(',')
+            %>
+          ];
+
+      <%= day.downcase %>_dir.route({
+        locations: <%= day.downcase %>_locations,
+        options: {routeType:'pedestrian'}
+      });
+
+      <%= day.downcase %>_map.addLayer(MQ.routing.routeLayer({
+        directions: <%= day.downcase %>_dir,
+        fitBounds: true,
+        ribbonOptions: {
+          ribbonDisplay: { color: '<%= day_map[day][:color] %>', opacity: 0.5 }
+        }
+      }));
+
+      $('#map-tabs').on('toggled', function (event, tab) {
+        $(window).resize();
+      });
+      <% end %>
+    </script>
   </div>
 <% end %>
