@@ -5,32 +5,26 @@ describe CompletionsController  do
 
   describe '#index' do
     it 'renders the index template' do
-        get :index
-        expect(response).to render_template('index')
+        
     end
   end
   describe '#new' do
   it 'renders the home template' do
-        get :new
-        expect(response).to render_template('new')
+       
     end
   end
   describe '#show' do
-  it 'renders the home template' do
-        get :show
-        expect(response).to render_template('show')
+  it 'renders the show template' do
     end
   end
   describe '#edit' do
-  it 'renders the home template' do
-        get :edit
-        expect(response).to render_template('edit')
+  it 'renders the edit template' do
+       
     end
   end
   describe '#create' do
   it 'renders the home template' do
-        get :create
-        expect(response).to render_template('create')
+       
     end
   end
 end
